@@ -301,7 +301,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                 do {
                     let jsonArray = try JSONSerialization.jsonObject(with: data, options:.allowFragments) as? [Any]
                     var drinkShowString: String = ""
-                    var drinkHotString: String = ""
+                    var drinkTopString: String = ""
                     for array in jsonArray! {
                         let drinkDict = array as! [String:String]
                         returnDict["drinkName"] = drinkDict["drinkName"]!
@@ -309,11 +309,11 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                         returnDict["drinkHot"] = drinkDict["drinkHot"]!
                         
                         if Int(drinkDict["drinkTop"]!) == 1 {
-                            drinkHotString = "🔥"
+                            drinkTopString = "🔥"
                         } else {
-                            drinkHotString = ""
+                            drinkTopString = ""
                         }
-                        drinkShowString = "\(drinkHotString)\(drinkDict["drinkName"]! ) 💰\(drinkDict["drinkPrice"]! )"
+                        drinkShowString = "\(drinkTopString)\(drinkDict["drinkName"]! ) 💰\(drinkDict["drinkPrice"]! )"
                         returnDict["drinkShowString"] = drinkShowString
                         self.drinkArray.append(returnDict)
                         //print("drinkName - \(drinkArray["drinkName"]!), drinkPrince - \(drinkArray["drinkPrice"]!), drinkHot - \(drinkArray["drinkHot"]!)")
