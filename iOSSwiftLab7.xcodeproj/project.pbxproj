@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EC49A6291E879B34005DD2E7 /* OrderDetailTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC49A6281E879B34005DD2E7 /* OrderDetailTableViewCell.swift */; };
+		ECBED9EF1E876769005B9E61 /* OrderAllViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBED9EE1E876769005B9E61 /* OrderAllViewController.swift */; };
 		ECC52F921E849AFA00CBC5A3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC52F911E849AFA00CBC5A3 /* AppDelegate.swift */; };
 		ECC52F941E849AFA00CBC5A3 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC52F931E849AFA00CBC5A3 /* ViewController.swift */; };
 		ECC52F971E849AFA00CBC5A3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ECC52F951E849AFA00CBC5A3 /* Main.storyboard */; };
@@ -16,6 +18,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		EC49A6281E879B34005DD2E7 /* OrderDetailTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderDetailTableViewCell.swift; sourceTree = "<group>"; };
+		ECBED9EE1E876769005B9E61 /* OrderAllViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderAllViewController.swift; sourceTree = "<group>"; };
 		ECC52F8E1E849AFA00CBC5A3 /* iOSSwiftLab7.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSSwiftLab7.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ECC52F911E849AFA00CBC5A3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		ECC52F931E849AFA00CBC5A3 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -59,6 +63,8 @@
 				ECC52FA31E849B6B00CBC5A3 /* UIColor+Utility.swift */,
 				ECC52F911E849AFA00CBC5A3 /* AppDelegate.swift */,
 				ECC52F931E849AFA00CBC5A3 /* ViewController.swift */,
+				ECBED9EE1E876769005B9E61 /* OrderAllViewController.swift */,
+				EC49A6281E879B34005DD2E7 /* OrderDetailTableViewCell.swift */,
 				ECC52F951E849AFA00CBC5A3 /* Main.storyboard */,
 				ECC52F981E849AFA00CBC5A3 /* Assets.xcassets */,
 				ECC52F9A1E849AFA00CBC5A3 /* LaunchScreen.storyboard */,
@@ -143,6 +149,8 @@
 				ECC52F941E849AFA00CBC5A3 /* ViewController.swift in Sources */,
 				ECC52F921E849AFA00CBC5A3 /* AppDelegate.swift in Sources */,
 				ECC52FA41E849B6B00CBC5A3 /* UIColor+Utility.swift in Sources */,
+				EC49A6291E879B34005DD2E7 /* OrderDetailTableViewCell.swift in Sources */,
+				ECBED9EF1E876769005B9E61 /* OrderAllViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

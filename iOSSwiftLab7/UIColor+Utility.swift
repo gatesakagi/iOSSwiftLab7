@@ -21,4 +21,12 @@ extension UIColor {
     class func themeOrange() -> UIColor {
         return UIColor(red: 251.0 / 255.0, green: 184.0 / 255.0, blue: 24.0 / 255.0, alpha: 1.0)
     }
+    
+    class func drinkHotRed() -> UIColor {
+        return UIColor(red:1.00, green:0.11, blue:0.10, alpha:1.0)
+    }
+    
+    class func drinkIceBlue() -> UIColor {
+        return UIColor(red:0.00, green:0.60, blue:1.00, alpha:1.0)
+    }
 }

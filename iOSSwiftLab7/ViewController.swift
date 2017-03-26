@@ -23,6 +23,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     var iceArray = ["正常","多冰","少冰","去冰","熱飲"]
     
     //IBOutlet
+    @IBOutlet weak var loadingView: UIView!
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var drinkTextField: UITextField!
     @IBOutlet weak var sugarSegmentedControl: UISegmentedControl!
@@ -31,32 +32,53 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     
     // 使用者下單按鈕事件
     @IBAction func orderBtnAction(_ sender: UIButton) {
+        
         self.view.endEditing(true)
-         if (sugarSegmentedControl.selectedSegmentIndex >= 0 && iceSegmentedControl.selectedSegmentIndex >= 0 && (nameTextField.text?.characters.count)! > 0 && (drinkTextField.text?.characters.count)! > 0) {
+        if sugarSegmentedControl.selectedSegmentIndex >= 0 && iceSegmentedControl.selectedSegmentIndex >= 0 && (nameTextField.text?.characters.count)! > 0 && (drinkTextField.text?.characters.count)! > 0 {
+            self.loadingView.isHidden = false
             let orderName = nameTextField.text!
-            let orderDrink = drinkTextField.text!
             let orderDrinkIndex = drinkPickerView.selectedRow(inComponent: 0)
+            let orderDrink = drinkTextField.text!
+            let orderDrinkPrice = drinkArray[orderDrinkIndex]["drinkPrice"]!
             let orderSuger = sugarArray[sugarSegmentedControl.selectedSegmentIndex]
             let orderIce = iceArray[iceSegmentedControl.selectedSegmentIndex]
-            let orderNote = noteTextView.text!
+            let orderNote = noteTextView.text!.replacingOccurrences(of: "有什麼話要留給彼得潘嗎？", with: "")
             let todaysDate:NSDate = NSDate()
             let dateFormatter:DateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyy-MM-dd HH:mm"
             let orderDatetime:String = dateFormatter.string(from: todaysDate as Date)
-            print("訂單名字-\(orderName), 訂購飲料-\(orderDrink), 訂購飲料編號-\(orderDrinkIndex), 甜度-\(orderSuger), 溫度-\(orderIce), 備註-\(orderNote), 訂購時間-\(orderDatetime)")
+            print("訂單名字-\(orderName), 訂購飲料編號-\(orderDrinkIndex), 訂購飲料-\(orderDrink), 訂購飲料金額-\(orderDrinkPrice), 甜度-\(orderSuger), 溫度-\(orderIce), 備註-\(orderNote), 訂購時間-\(orderDatetime)")
         
             let url = URL(string: "https://sheetsu.com/apis/v1.0/ab8e38e50f31")
             var urlRequest = URLRequest(url: url!)
             urlRequest.httpMethod = "POST"
             urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            let dictionary = ["name":orderName, "drink":orderDrink, "drinkIndex":orderDrinkIndex, "sugar":orderSuger, "ice":orderIce, "note":orderNote, "orderDatetime":orderDatetime] as [String : Any]
+            let dictionary = ["name":orderName, "drinkIndex":orderDrinkIndex, "drink":orderDrink, "drinkPrice":orderDrinkPrice, "sugar":orderSuger, "ice":orderIce, "note":orderNote, "orderDatetime":orderDatetime] as [String : Any]
             do {
                 let data = try  JSONSerialization.data(withJSONObject: dictionary, options: [])
                 let task = URLSession.shared.uploadTask(with: urlRequest, from: data, completionHandler: { (retData, res,
                     err) in
                     if let retData = retData {
                         do {
-                            var dic = try JSONSerialization.jsonObject(with: retData, options: [])
+                            _ = try JSONSerialization.jsonObject(with: retData, options: [])
+                            if err != nil {
+                                let alertController = UIAlertController(title: "系統異常", message: "請再試一次", preferredStyle: UIAlertControllerStyle.alert)
+                                let okAction = UIAlertAction(title: "確認", style: UIAlertActionStyle.default, handler: { (action) -> Void in
+                                    self.loadingView.isHidden = true
+                                })
+                                alertController.addAction(okAction)
+                                self.present(alertController, animated: true, completion: nil)
+                            } else {
+                                let alertController = UIAlertController(title: "訂單資料已送出", message: "謝謝您的訂購", preferredStyle: UIAlertControllerStyle.alert)
+                                let okAction = UIAlertAction(title: "確認", style: UIAlertActionStyle.default, handler: { (action) -> Void in
+                                    self.loadingView.isHidden = true
+                                    self.nameTextField.text = ""
+                                    self.drinkTextField.text = ""
+                                    self.noteTextView.text = "有什麼話要留給彼得潘嗎？"
+                                })
+                                alertController.addAction(okAction)
+                                self.present(alertController, animated: true, completion: nil)
+                            }
                         }
                         catch { }
                     } })
@@ -64,8 +86,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             }
             catch { }
          } else {
-            let alertController = UIAlertController(title: "您尚有資料尚未選擇", message: "記得再檢查一下哦！", preferredStyle: UIAlertControllerStyle.alert)
-            
+            let alertController = UIAlertController(title: "訂單資料沒有填齊全", message: "記得再檢查一下哦！", preferredStyle: UIAlertControllerStyle.alert)
             let okAction = UIAlertAction(title: "確認", style: UIAlertActionStyle.default)
             alertController.addAction(okAction)
             self.present(alertController, animated: true, completion: nil)
@@ -74,35 +95,56 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     
     // 進入後台事件
     @IBAction func goAdminVCAction(_ sender: UIBarButtonItem) {
-        var inputTextField: UITextField?
-        let passwordPrompt = UIAlertController(title: "查詢訂單資料", message: "請輸入密碼", preferredStyle: UIAlertControllerStyle.alert)
-        passwordPrompt.addAction(UIAlertAction(title: "取消", style: UIAlertActionStyle.default, handler: nil))
-        passwordPrompt.addAction(UIAlertAction(title: "確認", style: UIAlertActionStyle.default, handler: { (action) -> Void in
-            let inputPasswordText = inputTextField?.text!
-            if (inputPasswordText == "deeplovepeter") {
-                
-            } else {
-                let passwordError = UIAlertController(title: "查詢訂單資料", message: "密碼錯誤", preferredStyle: UIAlertControllerStyle.alert)
-                passwordError.addAction(UIAlertAction(title: "確認", style: UIAlertActionStyle.default, handler: nil))
-                self.present(passwordError, animated: true, completion: nil)
-            }
+        if UserDefaults.standard.bool(forKey: "logonAdmin") == false {
+            var inputTextField: UITextField?
+            let passwordPrompt = UIAlertController(title: "查詢訂單資料", message: "請輸入密碼", preferredStyle: UIAlertControllerStyle.alert)
+            passwordPrompt.addAction(UIAlertAction(title: "取消", style: UIAlertActionStyle.default, handler: nil))
+            passwordPrompt.addAction(UIAlertAction(title: "確認", style: UIAlertActionStyle.default, handler: { (action) -> Void in
+                let inputPasswordText = inputTextField?.text!
+                if inputPasswordText == "deeplovepeter" {
+                    UserDefaults.standard.set(true, forKey: "logonAdmin")
+                    let adminVC = self.storyboard?.instantiateViewController(withIdentifier: "OrderAllVC")
+                    self.navigationController?.pushViewController(adminVC!, animated: true)
+                } else {
+                    UserDefaults.standard.set(false, forKey: "logonAdmin")
+                    let passwordError = UIAlertController(title: "查詢訂單資料", message: "密碼錯誤", preferredStyle: UIAlertControllerStyle.alert)
+                    passwordError.addAction(UIAlertAction(title: "確認", style: UIAlertActionStyle.default, handler: nil))
+                    self.present(passwordError, animated: true, completion: nil)
+                }
+            }))
+            passwordPrompt.addTextField(configurationHandler: {(textField: UITextField!) in
+                textField.placeholder = "請輸入密碼"
+                textField.isSecureTextEntry = true
+                inputTextField = textField
+            })
             
-        }))
-        passwordPrompt.addTextField(configurationHandler: {(textField: UITextField!) in
-            textField.placeholder = "請輸入密碼"
-            textField.isSecureTextEntry = true
-            inputTextField = textField
-        })
-        
-        self.present(passwordPrompt, animated: true, completion: nil)
+            self.present(passwordPrompt, animated: true, completion: nil)
+        } else {
+            let adminVC = self.storyboard?.instantiateViewController(withIdentifier: "OrderAllVC")
+            self.navigationController?.pushViewController(adminVC!, animated: true)
+        }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "彼得潘請飲料"
-        
+        if UserDefaults.standard.object(forKey: "firstGetJson") != nil {
+            // exist
+            UserDefaults.standard.set(false, forKey: "firstGetJson")
+        } else {
+            // not exist
+            UserDefaults.standard.register(defaults: ["firstGetJson" : false])
+        }
+        if UserDefaults.standard.object(forKey: "logonAdmin") != nil {
+            // exist
+            UserDefaults.standard.set(false, forKey: "logonAdmin")
+        } else {
+            // not exist
+            UserDefaults.standard.register(defaults: ["logonAdmin" : false])
+        }
         getJsondata()
         segmentedControlDisable()
+//        initDrinkPickerView()
     }
     
     override func didReceiveMemoryWarning() {
@@ -146,8 +188,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     // 飲料選項按下確定事件
     func doneAction() {
         let selectedRowForPicker = drinkPickerView.selectedRow(inComponent: 0)
-        let tmpDic = drinkArray[selectedRowForPicker]
-        drinkTextField.text = tmpDic["drinkShowString"]
+        drinkTextField.text = drinkArray[selectedRowForPicker]["drinkShowString"]
         self.view.endEditing(true)
     }
     
@@ -179,7 +220,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     
     // 使用者清除飲料資料後判斷事件
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
-        if (textField == drinkTextField) {
+        if textField == drinkTextField {
             segmentedControlDisable()
         }
         return true
@@ -187,13 +228,13 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
     
     // 使用者選完飲料後判斷事件
     func textFieldDidEndEditing(_ textField: UITextField) {
-        if (textField == drinkTextField) {
-            if (drinkTextField.text?.characters.count == 0) {
+        if textField == drinkTextField {
+            if drinkTextField.text?.characters.count == 0 {
                 segmentedControlDisable()
             } else {
                 segmentedControlEnable()
                 let tmpDic = drinkArray[drinkPickerView.selectedRow(inComponent: 0)]
-                if (Int(tmpDic["drinkHot"]!) == 1) {
+                if Int(tmpDic["drinkHot"]!) == 1 {
                     iceSegmentedControl.setEnabled(true, forSegmentAt: 4)
                 } else {
                     iceSegmentedControl.setEnabled(false, forSegmentAt: 4)
@@ -221,14 +262,37 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         iceSegmentedControl.alpha = 1.0
     }
     
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView == noteTextView {
+            noteTextView.text = ""
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView == noteTextView {
+            if noteTextView.text?.characters.count == 0 {
+               noteTextView.text = "有什麼話要留給彼得潘嗎？"
+            }
+        }
+    }
+    
     // Get Json data
     func getJsondata() {
         
         var returnDict:Dictionary = [String:String]()
         
         let url = URL(string: "https://sheetsu.com/apis/v1.0/1f3dccf61c93")
-        let urlRequest = URLRequest(url: url!, cachePolicy:.returnCacheDataElseLoad, timeoutInterval: 5)
-        let task = URLSession.shared.dataTask(with: urlRequest) {
+
+        print(UserDefaults.standard.bool(forKey: "firstGetJson"))
+        var urlRequest:URLRequest?
+        if UserDefaults.standard.bool(forKey: "firstGetJson") == false {
+            urlRequest = URLRequest(url: url!, cachePolicy:.reloadIgnoringLocalCacheData, timeoutInterval: 5)
+            UserDefaults.standard.set(true, forKey: "firstGetJson")
+        } else {
+            urlRequest = URLRequest(url: url!, cachePolicy:.returnCacheDataElseLoad, timeoutInterval: 5)
+        }
+        
+        let task = URLSession.shared.dataTask(with: urlRequest!) {
             (data:Data?, response:URLResponse?, err:Error?) -> Void in
             guard err == nil else {
                 return
@@ -244,7 +308,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                         returnDict["drinkPrice"] = drinkDict["drinkPrice"]!
                         returnDict["drinkHot"] = drinkDict["drinkHot"]!
                         
-                        if (Int(drinkDict["drinkTop"]!) == 1) {
+                        if Int(drinkDict["drinkTop"]!) == 1 {
                             drinkHotString = "🔥"
                         } else {
                             drinkHotString = ""
@@ -252,13 +316,15 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                         drinkShowString = "\(drinkHotString)\(drinkDict["drinkName"]! ) 💰\(drinkDict["drinkPrice"]! )"
                         returnDict["drinkShowString"] = drinkShowString
                         self.drinkArray.append(returnDict)
-//                        print("drinkName - \(drinkArray["drinkName"]!), drinkPrince - \(drinkArray["drinkPrice"]!), drinkHot - \(drinkArray["drinkHot"]!)")
+                        //print("drinkName - \(drinkArray["drinkName"]!), drinkPrince - \(drinkArray["drinkPrice"]!), drinkHot - \(drinkArray["drinkHot"]!)")
                     }
                 } catch {
                     print("Error - \(err)")
                 }
+                DispatchQueue.main.async { //不加這個會很慢，因為更新Storyboard上面的UI都要在主線執行
+                    self.initDrinkPickerView()
+                }
                 print(self.drinkArray.description)
-                self.initDrinkPickerView()
             }
         }
         task.resume()
@@ -271,7 +337,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             let tmpDic = drinkArray[randomNum]
             print("shanking now - \(tmpDic["drinkShowString"]!)")
             drinkPickerView.selectRow(randomNum, inComponent: 0, animated: true)
-//            drinkTextField.text = tmpDic["drinkShowString"]!
+            //drinkTextField.text = tmpDic["drinkShowString"]!
         }
     }
 }
