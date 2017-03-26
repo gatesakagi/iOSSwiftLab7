@@ -21,7 +21,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="launchImg" translatesAutoresizingMaskIntoConstraints="NO" id="qaQ-ft-ml1">
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="bgImg" translatesAutoresizingMaskIntoConstraints="NO" id="qaQ-ft-ml1">
                                 <rect key="frame" x="0.0" y="64" width="320" height="504"/>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5eZ-fW-5r3" userLabel="topView">
@@ -727,7 +727,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="launchImg" width="750" height="1334"/>
+        <image name="bgImg" width="375" height="667"/>
         <image name="orderAll" width="24" height="28"/>
         <image name="orderNoteBtnImg" width="50" height="50"/>
     </resources>
