@@ -75,6 +75,7 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
                                     self.nameTextField.text = ""
                                     self.drinkTextField.text = ""
                                     self.noteTextView.text = "有什麼話要留給彼得潘嗎？"
+                                    self.segmentedControlDisable()
                                 })
                                 alertController.addAction(okAction)
                                 self.present(alertController, animated: true, completion: nil)
