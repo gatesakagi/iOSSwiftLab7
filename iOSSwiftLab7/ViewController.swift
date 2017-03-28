@@ -208,10 +208,16 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         return drinkArray.count
     }
     
-    /*// PickerView選擇到的那列要做的事
+    // PickerView選擇到的那列要做的事
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        drinkTextField.text = drinkArray[row]
-    }*/
+        segmentedControlEnable()
+        if Int(drinkArray[row]["drinkHot"]!) == 1 {
+            iceSegmentedControl.setEnabled(true, forSegmentAt: 4)
+        } else {
+            iceSegmentedControl.setEnabled(false, forSegmentAt: 4)
+        }
+        print("drinkHot-\(drinkArray[row]["drinkHot"]!)")
+    }
     
     //設定每列PickerView要顯示的內容
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
