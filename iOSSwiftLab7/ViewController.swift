@@ -288,8 +288,8 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
         
         var returnDict:Dictionary = [String:String]()
         
-        let url = URL(string: "https://sheetsu.com/apis/v1.0/1f3dccf61c93")
-
+        //let url = URL(string: "https://sheetsu.com/apis/v1.0/1f3dccf61c93")
+        let url = URL(string: "https://spreadsheets.google.com/feeds/list/1n51rRWaDO4-X2EdszIsBqFBZ7ZbYs0dpoH2ul0Uoz-8/1/public/values?alt=json")
         print(UserDefaults.standard.bool(forKey: "firstGetJson"))
         var urlRequest:URLRequest?
         if UserDefaults.standard.bool(forKey: "firstGetJson") == false {
@@ -306,24 +306,31 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             }
             if let data = data {
                 do {
-                    let jsonArray = try JSONSerialization.jsonObject(with: data, options:.allowFragments) as? [Any]
+                    let jsonDict = try JSONSerialization.jsonObject(with: data, options:.allowFragments) as? [String:AnyObject]
+                    let jsonDictForFeed = jsonDict?["feed"] as! [String: AnyObject]
+                    let jsonArray = jsonDictForFeed["entry"] as! [[String: AnyObject]]
+                
                     var drinkShowString: String = ""
                     var drinkTopString: String = ""
-                    for array in jsonArray! {
-                        let drinkDict = array as! [String:String]
-                        returnDict["drinkName"] = drinkDict["drinkName"]!
-                        returnDict["drinkPrice"] = drinkDict["drinkPrice"]!
-                        returnDict["drinkHot"] = drinkDict["drinkHot"]!
+                    for drinkDict in jsonArray {
+                        let drinkNameReadString: String = drinkDict["gsx$drinkname"]!["$t"]! as! String
+                        returnDict["drinkName"] = drinkNameReadString
+                        let drinkPriceReadString: String = drinkDict["gsx$drinkprice"]!["$t"]! as! String
+                        returnDict["drinkPrice"] = drinkPriceReadString
+                        let drinkTopReadString: String = drinkDict["gsx$drinktop"]!["$t"]! as! String
+                        let drinkHotReadString: String = drinkDict["gsx$drinkhot"]!["$t"]! as! String
+                        returnDict["drinkHot"] = drinkHotReadString
                         
-                        if Int(drinkDict["drinkTop"]!) == 1 {
+                        if Int(drinkTopReadString) == 1 {
                             drinkTopString = "🔥"
                         } else {
                             drinkTopString = ""
                         }
-                        drinkShowString = "\(drinkTopString)\(drinkDict["drinkName"]! ) 💰\(drinkDict["drinkPrice"]! )"
+                        drinkShowString = "\(drinkTopString)\(drinkNameReadString) 💰\(drinkPriceReadString)"
                         returnDict["drinkShowString"] = drinkShowString
                         self.drinkArray.append(returnDict)
-                        //print("drinkName - \(drinkArray["drinkName"]!), drinkPrince - \(drinkArray["drinkPrice"]!), drinkHot - \(drinkArray["drinkHot"]!)")
+                        print(self.drinkArray)
+//                        print("drinkName - \(drinkArray["drinkName"]!), drinkPrince - \(drinkArray["drinkPrice"]!), drinkHot - \(drinkArray["drinkHot"]!)")
                     }
                 } catch {
                     print("Error - \(err)")
