@@ -49,43 +49,86 @@ class ViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSo
             let orderDatetime:String = dateFormatter.string(from: todaysDate as Date)
             print("訂單名字-\(orderName), 訂購飲料編號-\(orderDrinkIndex), 訂購飲料-\(orderDrink), 訂購飲料金額-\(orderDrinkPrice), 甜度-\(orderSuger), 溫度-\(orderIce), 備註-\(orderNote), 訂購時間-\(orderDatetime)")
         
-            let url = URL(string: "https://sheetsu.com/apis/v1.0/ab8e38e50f31")
-            var urlRequest = URLRequest(url: url!)
-            urlRequest.httpMethod = "POST"
-            urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            let dictionary = ["name":orderName, "drinkIndex":orderDrinkIndex, "drink":orderDrink, "drinkPrice":orderDrinkPrice, "sugar":orderSuger, "ice":orderIce, "note":orderNote, "orderDatetime":orderDatetime] as [String : Any]
-            do {
-                let data = try  JSONSerialization.data(withJSONObject: dictionary, options: [])
-                let task = URLSession.shared.uploadTask(with: urlRequest, from: data, completionHandler: { (retData, res,
-                    err) in
-                    if let retData = retData {
-                        do {
-                            _ = try JSONSerialization.jsonObject(with: retData, options: [])
-                            if err != nil {
-                                let alertController = UIAlertController(title: "系統異常", message: "請再試一次", preferredStyle: UIAlertControllerStyle.alert)
-                                let okAction = UIAlertAction(title: "確認", style: UIAlertActionStyle.default, handler: { (action) -> Void in
-                                    self.loadingView.isHidden = true
-                                })
-                                alertController.addAction(okAction)
-                                self.present(alertController, animated: true, completion: nil)
-                            } else {
-                                let alertController = UIAlertController(title: "訂單資料已送出", message: "謝謝您的訂購", preferredStyle: UIAlertControllerStyle.alert)
-                                let okAction = UIAlertAction(title: "確認", style: UIAlertActionStyle.default, handler: { (action) -> Void in
-                                    self.loadingView.isHidden = true
-                                    self.nameTextField.text = ""
-                                    self.drinkTextField.text = ""
-                                    self.noteTextView.text = "有什麼話要留給彼得潘嗎？"
-                                    self.segmentedControlDisable()
-                                })
-                                alertController.addAction(okAction)
-                                self.present(alertController, animated: true, completion: nil)
-                            }
-                        }
-                        catch { }
-                    } })
-                task.resume()
+//            let url = URL(string: "https://sheetsu.com/apis/v1.0/ab8e38e50f31")
+//            var urlRequest = URLRequest(url: url!)
+//            urlRequest.httpMethod = "POST"
+//            urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+//            let dictionary = ["name":orderName, "drinkIndex":orderDrinkIndex, "drink":orderDrink, "drinkPrice":orderDrinkPrice, "sugar":orderSuger, "ice":orderIce, "note":orderNote, "orderDatetime":orderDatetime] as [String : Any]
+//            do {
+//                let data = try  JSONSerialization.data(withJSONObject: dictionary, options: [])
+//                let task = URLSession.shared.uploadTask(with: urlRequest, from: data, completionHandler: { (retData, res,
+//                    err) in
+//                    if let retData = retData {
+//                        do {
+//                            _ = try JSONSerialization.jsonObject(with: retData, options: [])
+//                            if err != nil {
+//                                let alertController = UIAlertController(title: "系統異常", message: "請再試一次", preferredStyle: UIAlertControllerStyle.alert)
+//                                let okAction = UIAlertAction(title: "確認", style: UIAlertActionStyle.default, handler: { (action) -> Void in
+//                                    self.loadingView.isHidden = true
+//                                })
+//                                alertController.addAction(okAction)
+//                                self.present(alertController, animated: true, completion: nil)
+//                            } else {
+//                                let alertController = UIAlertController(title: "訂單資料已送出", message: "謝謝您的訂購", preferredStyle: UIAlertControllerStyle.alert)
+//                                let okAction = UIAlertAction(title: "確認", style: UIAlertActionStyle.default, handler: { (action) -> Void in
+//                                    self.loadingView.isHidden = true
+//                                    self.nameTextField.text = ""
+//                                    self.drinkTextField.text = ""
+//                                    self.noteTextView.text = "有什麼話要留給彼得潘嗎？"
+//                                    self.segmentedControlDisable()
+//                                })
+//                                alertController.addAction(okAction)
+//                                self.present(alertController, animated: true, completion: nil)
+//                            }
+//                        }
+//                        catch { }
+//                    } })
+//                task.resume()
+//            }
+            
+            // 新增Google App Script的網址
+            let scriptUrl = "https://script.google.com/macros/s/AKfycbyAhSHc9FtmXhM6b0J7ZZMoMgjjf6We8wL6ljtZV7kbmhRsi-I/exec"
+
+            // QueryString與app 串資料
+            let urlWithParams = scriptUrl + "?name=\(orderName)&drinkindex=\(orderDrinkIndex)&drink=\(orderDrink)&drinkprice=\(orderDrinkPrice)&sugar=\(orderSuger)&ice=\(orderIce)&note=\(orderNote)&orderdatetime=\(orderDatetime)&type=get"
+            
+            let url = URL(string: urlWithParams.addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)!)!
+            print(url)
+
+            var urlRequest = URLRequest(url:url)
+            
+            // Set request HTTP method to GET. It could be POST as well
+            urlRequest.httpMethod = "GET"
+            
+            // Excute HTTP Request
+            let task = URLSession.shared.dataTask(with: urlRequest as URLRequest) {
+                data, response, error in
+                let responseString = NSString(data: data!, encoding: String.Encoding.utf8.rawValue)
+                print("responseString = \(responseString!)")
+                
+                // Check for error
+                if error != nil {
+                    print("error=\(error!)")
+                    let alertController = UIAlertController(title: "系統異常", message: "請再試一次", preferredStyle: UIAlertControllerStyle.alert)
+                    let okAction = UIAlertAction(title: "確認", style: UIAlertActionStyle.default, handler: { (action) -> Void in
+                        self.loadingView.isHidden = true
+                    })
+                    alertController.addAction(okAction)
+                    self.present(alertController, animated: true, completion: nil)
+                } else {
+                    let alertController = UIAlertController(title: "訂單資料已送出", message: "謝謝您的訂購", preferredStyle: UIAlertControllerStyle.alert)
+                    let okAction = UIAlertAction(title: "確認", style: UIAlertActionStyle.default, handler: { (action) -> Void in
+                        self.loadingView.isHidden = true
+                        self.nameTextField.text = ""
+                        self.drinkTextField.text = ""
+                        self.noteTextView.text = "有什麼話要留給彼得潘嗎？"
+                        self.segmentedControlDisable()
+                    })
+                    alertController.addAction(okAction)
+                    self.present(alertController, animated: true, completion: nil)
+                }
             }
-            catch { }
+            task.resume()
          } else {
             let alertController = UIAlertController(title: "訂單資料沒有填齊全", message: "記得再檢查一下哦！", preferredStyle: UIAlertControllerStyle.alert)
             let okAction = UIAlertAction(title: "確認", style: UIAlertActionStyle.default)
