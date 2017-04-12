@@ -43,8 +43,8 @@ class OrderAllViewController: UIViewController, UITableViewDelegate, UITableView
         
         var returnDict:Dictionary = [String:String]()
         
-        let url = URL(string: "https://sheetsu.com/apis/v1.0/ab8e38e50f31")
-        
+        //let url = URL(string: "https://sheetsu.com/apis/v1.0/ab8e38e50f31")
+        let url = URL(string: "https://spreadsheets.google.com/feeds/list/1qO1Gg_48IwnHGGFJBv-RVGKd-NrPmq3TI3rPBHa3baI/1/public/values?alt=json")
         let urlRequest = URLRequest(url: url!, cachePolicy:.reloadIgnoringLocalCacheData, timeoutInterval: 0)
 
         let task = URLSession.shared.dataTask(with: urlRequest) {
@@ -55,17 +55,32 @@ class OrderAllViewController: UIViewController, UITableViewDelegate, UITableView
             if let data = data {
                 var orderAmount = 0
                 do {
-                    let jsonArray = try JSONSerialization.jsonObject(with: data, options:.allowFragments) as? [Any]
-                    for array in jsonArray! {
-                        let drinkDict = array as! [String:String]
-                        returnDict["orderName"] = drinkDict["name"]!
-                        returnDict["orderDrink"] = drinkDict["drink"]!
-                        returnDict["orderDrinkPrice"] = drinkDict["drinkPrice"]!
-                        returnDict["orderSugar"] = drinkDict["sugar"]!
-                        returnDict["orderIce"] = drinkDict["ice"]!
-                        returnDict["orderNote"] = drinkDict["note"]!
-                        returnDict["orderDatetime"] = drinkDict["orderDatetime"]!
-                        orderAmount += Int(drinkDict["drinkPrice"]!)!
+                    let jsonDict = try JSONSerialization.jsonObject(with: data, options:.allowFragments) as? [String:AnyObject]
+                    let jsonDictForFeed = jsonDict?["feed"] as! [String: AnyObject]
+                    let jsonArray = jsonDictForFeed["entry"] as! [[String: AnyObject]]
+                    for drinkDict in jsonArray {
+                        let orderNameReadString: String = drinkDict["gsx$name"]!["$t"]! as! String
+                        returnDict["orderName"] = orderNameReadString
+                        
+                        let orderDrinkReadString: String = drinkDict["gsx$drink"]!["$t"]! as! String
+                        returnDict["orderDrink"] = orderDrinkReadString
+
+                        let orderDrinkPriceReadString: String = drinkDict["gsx$drinkprice"]!["$t"]! as! String
+                        returnDict["orderDrinkPrice"] = orderDrinkPriceReadString
+
+                        let orderSugarReadString: String = drinkDict["gsx$sugar"]!["$t"]! as! String
+                        returnDict["orderSugar"] = orderSugarReadString
+
+                        let orderIceReadString: String = drinkDict["gsx$ice"]!["$t"]! as! String
+                        returnDict["orderIce"] = orderIceReadString
+                        
+                        let orderNoteReadString: String = drinkDict["gsx$note"]!["$t"]! as! String
+                        returnDict["orderNote"] = orderNoteReadString
+                        
+                        let orderDatetimeReadString: String = drinkDict["gsx$note"]!["$t"]! as! String
+                        returnDict["orderDatetime"] = orderDatetimeReadString
+                        
+                        orderAmount += Int(orderDrinkPriceReadString)!
                         self.orderDrinkArray.append(returnDict)
                     }
                 } catch {
